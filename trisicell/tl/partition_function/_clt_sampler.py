@@ -131,7 +131,7 @@ def clt_sample_rec(
         else:
             nbg = "BAD"
 
-        index_and_ps.append((prob.flat[i], cells1, cells2, nbg))
+        index_and_ps.append((prob.flat[i], cells1, cells2, nbg, dist.flat[i]))
     index_and_ps = sorted(list(set(index_and_ps)), reverse=True)
     strings = []
     for i in range(len(index_and_ps)):
@@ -140,7 +140,7 @@ def clt_sample_rec(
         if tup[1] == tup[2]: 
             pass
         else:
-            temp += "\t" + tup[1] + " and " + tup[2] + ": " + str("{:.5E}".format(tup[0])) + " " + tup[3]
+            temp += "\t" + tup[1] + " and " + tup[2] + ": p = " + str("{:.5E}".format(tup[0])) + " s = " + str("{:.5E}".format(tup[4])) + " " + tup[3]
             strings.append(temp)
     maxlen = len(max(strings, key=len))
     strings = [s.ljust(maxlen) for s in strings]
