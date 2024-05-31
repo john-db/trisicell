@@ -168,7 +168,7 @@ def clt_sample_rec(
     else:
         nbg = "BAD"
 
-    perline = 1
+    perline = 2
     for i in range(len(strings) // perline):
         temp = ""
         for j in range(perline):
@@ -176,7 +176,7 @@ def clt_sample_rec(
                 temp += strings[i+j] + " \t"
         print(temp)
 
-    print("\tSum of distribution = " + str(sum(prob.flat)))
+    print("\n\tSum of distribution = " + str(sum(prob.flat)))
     
     
     print("\n\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.5E}".format(prob.flat[ind])) + " " + nbg)
