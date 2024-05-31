@@ -168,15 +168,20 @@ def clt_sample_rec(
     else:
         nbg = "BAD"
 
-    for i in range(len(strings) // 3):
+    perline = 1
+    for i in range(len(strings) // perline):
         temp = ""
-        for j in range(3):
+        for j in range(perline):
             if i + j < len(strings) - 1:
                 temp += strings[i+j] + " \t"
         print(temp)
-    print()
+
+    print("\nSum of distribution = " + str(sum(prob.flat)))
     
-    print("\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.5E}".format(prob.flat[ind])) + " " + nbg)
+    
+    print("\n\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.5E}".format(prob.flat[ind])) + " " + nbg)
+
+
     
 
     # conversion from numpy.float128 to Decimal is not supported
