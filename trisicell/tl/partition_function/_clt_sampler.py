@@ -176,7 +176,7 @@ def clt_sample_rec(
                 temp += strings[i+j] + " \t"
         print(temp)
 
-    print("\nSum of distribution = " + str(sum(prob.flat)))
+    print("\tSum of distribution = " + str(sum(prob.flat)))
     
     
     print("\n\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.5E}".format(prob.flat[ind])) + " " + nbg)
