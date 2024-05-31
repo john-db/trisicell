@@ -7,7 +7,7 @@ from scipy.special import softmax
 from sklearn.metrics.pairwise import pairwise_distances
 
 
-def draw_sample_clt(P, greedy, names_to_cells, c=1, coef=2):
+def draw_sample_clt(P, greedy, names_to_cells, clade, c=1, coef=2):
     r"""
     Draw sample clt.
 
@@ -19,7 +19,7 @@ def draw_sample_clt(P, greedy, names_to_cells, c=1, coef=2):
     prior_prob in the latex: Prob_{T\sim E}[T]
     """
 
-    edges, prior_prob = clt_sample_rec(P, greedy, c, coef=coef, names_to_cells=names_to_cells)
+    edges, prior_prob = clt_sample_rec(P, greedy, c, coef=coef, names_to_cells=names_to_cells, clade=clade)
     n_cells = P.shape[0]
     n_nodes = 2 * n_cells - 1
     edges_map = {a: (b, d) for a, b, d in edges}
@@ -40,6 +40,7 @@ def clt_sample_rec(
     greedy,
     c,
     names_to_cells,
+    clade,
     names=None,
     namecount=None,
     coef=2,
@@ -108,7 +109,6 @@ def clt_sample_rec(
     #     cells2 = names_to_cells[int(names[pair_i[1]])]
     #     print("\t" + cells1 + " AND " + cells2 + ": " + str(prob.flat[i]))
 
-    clade = ["C20","C7","C8","C16","C11","C15","C18"]
     index_and_ps = []
     for i in range(len(prob.flat)):
         pair_i = np.unravel_index(i, prob.shape)
@@ -197,7 +197,7 @@ def clt_sample_rec(
     new_names_to_cells = names_to_cells.copy() + [parent_cell]
 
     edges, prior_prob = clt_sample_rec(
-        P_new, greedy, c, new_names_to_cells, new_names, newnamecount, coef, prior_prob
+        P_new, greedy, c, new_names_to_cells, clade, new_names, newnamecount, coef, prior_prob
     )
     edges.append(new_edge)
     return edges, prior_prob

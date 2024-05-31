@@ -48,7 +48,7 @@ def pf_cond_on_one_tree(P, subtrees, cond_c, cond_m):
     return numerator, denominator
 
 
-def get_samples(P, n_samples, names_to_cells, disable_tqdm=True):
+def get_samples(P, n_samples, names_to_cells, cells, disable_tqdm=True):
     r"""
     N_s *.
 
@@ -75,7 +75,7 @@ def get_samples(P, n_samples, names_to_cells, disable_tqdm=True):
         print("Sample " + str(_))
         n_to_c = names_to_cells.copy()
 
-        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, coef=10, names_to_cells=n_to_c)
+        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, coef=10, names_to_cells=n_to_c, clade=cells)
         edges_list.append(edges)
         subtrees_list.append(subtrees)
         tree_our_prob_list.append(prior_prob)

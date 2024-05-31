@@ -54,7 +54,7 @@ def partition_function(df_input, alpha, beta, n_samples, n_batches, muts, cells,
     if len(my_cells) != len(cells):
         tsc.logg.error("bad cells choise!")
 
-    _, subtrees_list, tree_our_prob_list = get_samples(P, n_samples, names_to_cells)
+    _, subtrees_list, tree_our_prob_list = get_samples(P, n_samples, names_to_cells, cells)
 
     def run(mut):
         my_mut = np.where(df_input.columns == mut)[0][0]
