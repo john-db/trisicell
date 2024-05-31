@@ -131,7 +131,7 @@ def clt_sample_rec(
         else:
             nbg = "BAD"
 
-        index_and_ps.append((prob.flat[i], cells1, cells2, nbg, dist.flat[i]))
+        index_and_ps.append((prob.flat[i], cells1, cells2, nbg, dist.flat[i] * -1/(2 * c_rec)))
     index_and_ps = sorted(list(set(index_and_ps)), reverse=True)
     strings = []
     for i in range(len(index_and_ps)):
