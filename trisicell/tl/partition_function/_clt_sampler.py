@@ -7,7 +7,7 @@ from scipy.special import softmax
 from sklearn.metrics.pairwise import pairwise_distances
 
 
-def draw_sample_clt(P, greedy, c=1, coef=2):
+def draw_sample_clt(P, greedy, names_to_cells, c=1, coef=2):
     r"""
     Draw sample clt.
 
@@ -19,7 +19,7 @@ def draw_sample_clt(P, greedy, c=1, coef=2):
     prior_prob in the latex: Prob_{T\sim E}[T]
     """
 
-    edges, prior_prob = clt_sample_rec(P, greedy, c, coef=coef)
+    edges, prior_prob = clt_sample_rec(P, greedy, c, coef=coef, names_to_cells=names_to_cells)
     n_cells = P.shape[0]
     n_nodes = 2 * n_cells - 1
     edges_map = {a: (b, d) for a, b, d in edges}
@@ -39,6 +39,7 @@ def clt_sample_rec(
     P,
     greedy,
     c,
+    names_to_cells,
     names=None,
     namecount=None,
     coef=2,
@@ -63,7 +64,8 @@ def clt_sample_rec(
     :param prior_prob: for rec
     :return: edges, prior_prob
     """
-
+    if len(P) > 1:
+        print("\n\t------- Next iteration --------\n")
     # TODO make this faster by not recalculating
     if prior_prob is None:
         prior_prob = Decimal(1.0)
@@ -79,7 +81,7 @@ def clt_sample_rec(
             return la.norm(a - b) - row_leafness_score(a, b) * coef
 
         dist = pairwise_distances(P, metric=join_neg_priority)  # O(n m^2)
-        dist = dist.astype(np.float128)
+        dist = dist.astype(np.float64)
         np.fill_diagonal(dist, np.inf)
 
         # This block adjusts c if dist/2c is too big for sotfmax.
@@ -99,6 +101,83 @@ def clt_sample_rec(
         flat_probs = np.float64(prob.flat)
         ind = np.random.choice(len(flat_probs), p=flat_probs)
         pair = np.unravel_index(ind, prob.shape)
+    
+    # for i in range(len(prob.flat)):
+    #     pair_i = np.unravel_index(i, prob.shape)
+    #     cells1 = names_to_cells[int(names[pair_i[0]])]
+    #     cells2 = names_to_cells[int(names[pair_i[1]])]
+    #     print("\t" + cells1 + " AND " + cells2 + ": " + str(prob.flat[i]))
+
+    clade = ["C20","C7","C8","C16","C11","C15","C18"]
+    index_and_ps = []
+    for i in range(len(prob.flat)):
+        pair_i = np.unravel_index(i, prob.shape)
+        cells1 = names_to_cells[int(names[np.max(pair_i)])]
+        cells2 = names_to_cells[int(names[np.min(pair_i)])]
+
+        cells1ls = cells1.split(",")
+        cells2ls = cells2.split(",")
+
+        int1 = set(cells1ls) & set(clade)
+        int2 = set(cells2ls) & set(clade)
+
+        nbg = None
+        if len(int1) == 0 and len(int2) == 0:
+            nbg = "NEUTRAL"
+        elif set(clade).issubset(int1) or set(clade).issubset(int2):
+            nbg = "NEUTRAL"
+        elif len(int1) == len(cells1ls) and len(int2) == len(cells2ls):
+            nbg = "GOOD"
+        else:
+            nbg = "BAD"
+
+        index_and_ps.append((prob.flat[i], cells1, cells2, nbg))
+    index_and_ps = sorted(list(set(index_and_ps)), reverse=True)
+    strings = []
+    for i in range(len(index_and_ps)):
+        temp = ""
+        tup = index_and_ps[i]
+        if tup[1] == tup[2]: 
+            pass
+        else:
+            temp += "\t" + tup[1] + " and " + tup[2] + ": " + str("{:.5E}".format(tup[0])) + " " + tup[3]
+            strings.append(temp)
+    maxlen = len(max(strings, key=len))
+    strings = [s.ljust(maxlen) for s in strings]
+
+    # for i in range(len(strings) // 2):
+    #     temp = ""
+    #     for j in range(2):
+    #         if i + j < len(strings) - 1:
+    #             temp += strings[i+j] + " \t"
+    #     print(temp)
+
+    cells1 = names_to_cells[int(names[np.max(pair)])]
+    cells2 = names_to_cells[int(names[np.min(pair)])]
+    cells1ls = cells1.split(",")
+    cells2ls = cells2.split(",")
+    int1 = set(cells1ls) & set(clade)
+    int2 = set(cells2ls) & set(clade)
+    nbg = None
+    if len(int1) == 0 and len(int2) == 0:
+            nbg = "NEUTRAL"
+    elif set(clade).issubset(int1) or set(clade).issubset(int2):
+        nbg = "NEUTRAL"
+    elif len(int1) == len(cells1ls) and len(int2) == len(cells2ls):
+        nbg = "GOOD"
+    else:
+        nbg = "BAD"
+
+    for i in range(len(strings) // 3):
+        temp = ""
+        for j in range(3):
+            if i + j < len(strings) - 1:
+                temp += strings[i+j] + " \t"
+        print(temp)
+    print()
+    
+    print("\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.5E}".format(prob.flat[ind])) + " " + nbg)
+    
 
     # conversion from numpy.float128 to Decimal is not supported
     prior_prob = prior_prob * Decimal(np.float64(prob[pair]))
@@ -113,8 +192,12 @@ def clt_sample_rec(
     del new_names[np.min(pair)]
     new_names.append(namecount)
     newnamecount = namecount + 1
+
+    parent_cell = names_to_cells[int(names[np.max(pair)])] + "," + names_to_cells[int(names[np.min(pair)])]
+    new_names_to_cells = names_to_cells.copy() + [parent_cell]
+
     edges, prior_prob = clt_sample_rec(
-        P_new, greedy, c, new_names, newnamecount, coef, prior_prob
+        P_new, greedy, c, new_names_to_cells, new_names, newnamecount, coef, prior_prob
     )
     edges.append(new_edge)
     return edges, prior_prob

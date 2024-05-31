@@ -48,7 +48,7 @@ def pf_cond_on_one_tree(P, subtrees, cond_c, cond_m):
     return numerator, denominator
 
 
-def get_samples(P, n_samples, disable_tqdm=True):
+def get_samples(P, n_samples, names_to_cells, disable_tqdm=True):
     r"""
     N_s *.
 
@@ -64,14 +64,18 @@ def get_samples(P, n_samples, disable_tqdm=True):
             the tree. Prob_{T\sim E}[T]
     """
 
-    P = P.astype(np.float128)
+    P = P.astype(np.float64)
     edges_list = []
     subtrees_list = []
     tree_our_prob_list = []
+
     for _ in tqdm(
         range(n_samples), ascii=True, ncols=100, desc="Sampling", disable=disable_tqdm
     ):
-        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, coef=10)
+        print("Sample " + str(_))
+        n_to_c = names_to_cells.copy()
+
+        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, coef=10, names_to_cells=n_to_c)
         edges_list.append(edges)
         subtrees_list.append(subtrees)
         tree_our_prob_list.append(prior_prob)
