@@ -73,7 +73,7 @@ def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, d
     for _ in tqdm(
         range(n_samples), ascii=True, ncols=100, desc="Sampling", disable=disable_tqdm
     ):
-        print("Sample " + str(_))
+        # print("Sample " + str(_))
         n_to_c = names_to_cells.copy()
 
         edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, eps=eps, delta=delta, divide=divide, coef=coef, names_to_cells=n_to_c, clade=cells, rng=rng)
