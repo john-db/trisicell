@@ -48,7 +48,7 @@ def pf_cond_on_one_tree(P, subtrees, cond_c, cond_m):
     return numerator, denominator
 
 
-def get_samples(P, n_samples, names_to_cells, cells, disable_tqdm=True):
+def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, disable_tqdm=True):
     r"""
     N_s *.
 
@@ -69,16 +69,20 @@ def get_samples(P, n_samples, names_to_cells, cells, disable_tqdm=True):
     subtrees_list = []
     tree_our_prob_list = []
 
+    rng = np.random.default_rng(seed=0)
     for _ in tqdm(
         range(n_samples), ascii=True, ncols=100, desc="Sampling", disable=disable_tqdm
     ):
         print("Sample " + str(_))
         n_to_c = names_to_cells.copy()
 
-        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, coef=10, names_to_cells=n_to_c, clade=cells)
+        edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, eps=eps, delta=delta, divide=divide, coef=coef, names_to_cells=n_to_c, clade=cells, rng=rng)
         edges_list.append(edges)
         subtrees_list.append(subtrees)
         tree_our_prob_list.append(prior_prob)
+    
+    # clades_list = sorted([["".join([str(i) for i in st]) for st in subtrees] for subtrees in subtrees_list])
+    # clades_list = [",".join(clade) for clade in clades_list]
     return edges_list, subtrees_list, tree_our_prob_list
 
 
@@ -180,12 +184,36 @@ def process_samples(
         samples_interval_start = batch_ind * interval_len
         samples_interval_end = min((batch_ind + 1) * interval_len, n_samples)
         assert samples_interval_start < samples_interval_end
+
+        ls_corrected = []
+        ls_raw = []
         for i in range(samples_interval_start, samples_interval_end):
+            # numerator += (
+            #     pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i]
+            # )
+            # denominator += tree_origin_prob_list[i] / tree_our_prob_list[i]
+            # ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i])]
+
             numerator += (
-                pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i]
+                pf_cond_list[i] * tree_origin_prob_list[i]
             )
-            denominator += tree_origin_prob_list[i] / tree_our_prob_list[i]
+            denominator += tree_origin_prob_list[i]
+            ls_raw += [(pf_cond_list[i] * tree_origin_prob_list[i], tree_origin_prob_list[i], pf_cond_list[i])]
+        
+        ls_raw = sorted(ls_raw, reverse = True, key = lambda x: x[1])
+        ls_corrected = sorted(ls_corrected, reverse = True, key = lambda x: x[1])
         estimates.append(numerator / denominator)
+
+        temp = 0
+        for i in range(1, len(ls_raw)):
+            temp += ls_raw[i][0]
+
+
+        # print("tree probs")
+        # for i in range(1, 10):
+        #     print(tree_our_prob_list[i])
+        # print("numerator: " + str(numerator) + "denominator: " + str(denominator))
+        # print(estimates[0])
     assert len(estimates) >= 1
     if n_batches is None:
         return estimates[0]

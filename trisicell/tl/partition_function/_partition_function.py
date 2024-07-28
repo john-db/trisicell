@@ -13,7 +13,7 @@ from trisicell.tl.partition_function._pf import (
 )
 
 
-def partition_function(df_input, alpha, beta, n_samples, n_batches, muts, cells, names_to_cells):
+def partition_function(df_input, alpha, beta, n_samples, n_batches, muts, cells, names_to_cells, eps, delta, divide, coef):
     """Calculate the probability of a mutation seeding particular cells.
 
     Parameters
@@ -54,7 +54,7 @@ def partition_function(df_input, alpha, beta, n_samples, n_batches, muts, cells,
     if len(my_cells) != len(cells):
         tsc.logg.error("bad cells choise!")
 
-    _, subtrees_list, tree_our_prob_list = get_samples(P, n_samples, names_to_cells, cells)
+    _, subtrees_list, tree_our_prob_list = get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef)
 
     def run(mut):
         my_mut = np.where(df_input.columns == mut)[0][0]
@@ -74,4 +74,4 @@ def partition_function(df_input, alpha, beta, n_samples, n_batches, muts, cells,
     running_time = e_time - s_time
     tsc.logg.info(f"elapsed time: {datetime.timedelta(seconds=running_time)}")
 
-    return df_output.astype(float)
+    return df_output.astype(np.float64)
