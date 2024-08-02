@@ -186,34 +186,28 @@ def process_samples(
         assert samples_interval_start < samples_interval_end
 
         ls_corrected = []
-        ls_raw = []
+        # ls_raw = []
         for i in range(samples_interval_start, samples_interval_end):
-            # numerator += (
-            #     pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i]
-            # )
-            # denominator += tree_origin_prob_list[i] / tree_our_prob_list[i]
-            # ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i])]
-
             numerator += (
-                pf_cond_list[i] * tree_origin_prob_list[i]
+                pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i]
             )
-            denominator += tree_origin_prob_list[i]
-            ls_raw += [(pf_cond_list[i] * tree_origin_prob_list[i], tree_origin_prob_list[i], pf_cond_list[i])]
+            denominator += tree_origin_prob_list[i] / tree_our_prob_list[i]
+            ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i])]
+
+            # numerator += (
+            #     pf_cond_list[i] * tree_origin_prob_list[i]
+            # )
+            # denominator += tree_origin_prob_list[i]
+            # ls_raw += [(pf_cond_list[i] * tree_origin_prob_list[i], tree_origin_prob_list[i], pf_cond_list[i])]
         
-        ls_raw = sorted(ls_raw, reverse = True, key = lambda x: x[1])
+        # ls_raw = sorted(ls_raw, reverse = True, key = lambda x: x[1])
         ls_corrected = sorted(ls_corrected, reverse = True, key = lambda x: x[1])
         estimates.append(numerator / denominator)
 
-        temp = 0
-        for i in range(1, len(ls_raw)):
-            temp += ls_raw[i][0]
+        for i in range(len(ls_corrected)):
+            print("n = " + str(ls_corrected[i][0]) + " d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]))
 
 
-        # print("tree probs")
-        # for i in range(1, 10):
-        #     print(tree_our_prob_list[i])
-        # print("numerator: " + str(numerator) + "denominator: " + str(denominator))
-        # print(estimates[0])
     assert len(estimates) >= 1
     if n_batches is None:
         return estimates[0]
