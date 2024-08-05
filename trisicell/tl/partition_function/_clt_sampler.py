@@ -285,6 +285,7 @@ def clt_sample_rec(
 
         dist = pairwise_distances(P, metric=join_neg_priority)  # O(n m^2)
         dist = dist.astype(np.float64)
+
         np.fill_diagonal(dist, np.inf)
         save = dist.copy()
 
@@ -323,15 +324,15 @@ def clt_sample_rec(
         # John: cut off values below x%
         sim = softmax(-dist)
         # distcopy = dist.copy()
-        # for i in range(len(sim.flat)):
-        #     # if sim.flat[i] < 0.02:
-        #     #     distcopy.flat[i] = float('inf')
-        #     if sim.flat[i] < 0.000002:
-        #         sim.flat[i] = 0
-        # if np.dot(sim.flat, sim.flat) == 0:
-        #     sim = softmax(-dist)
-        # else:
-        #     sim = sim / sum(sim.flat)
+        for i in range(len(sim.flat)):
+            # if sim.flat[i] < 0.02:
+            #     distcopy.flat[i] = float('inf')
+            if sim.flat[i] < 0.01:
+                sim.flat[i] = 0
+        if np.dot(sim.flat, sim.flat) == 0:
+            sim = softmax(-dist)
+        else:
+            sim = sim / sum(sim.flat)
         # sim = softmax(-distcopy)
     else:
         # add new row to join_prob_matrix to get sim
@@ -414,7 +415,7 @@ def clt_sample_rec(
     else:
         nbg = "BAD"
 
-    for i in range(15):
+    for i in range(25):
         if i < len(strings):
             log += strings[i] + "\n"
 
@@ -426,7 +427,7 @@ def clt_sample_rec(
     
     log += "\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.10f}".format(prob.flat[ind] * 2)) + " " + nbg + "\n"
     
-    # print(log)
+    print(log)
 
 
 

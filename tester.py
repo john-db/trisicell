@@ -27,7 +27,7 @@ beta=0.075
 # alpha=0.1
 # beta=0.25
 
-delta = 0.8
+delta = 0.65
 divide = True
 
 eps_list = [10]
@@ -42,8 +42,9 @@ blue = ["C6", "C21", "C24", "C9"]
 blue_with_c19 = blue + ["C19"]
 orange = ["C22", "C4", "C1"]
 two_and_five = ["C2", "C5"]
+green_subclade = ["C23", "C12", "C10", "C14", "C3"]
 
-major_clades = [red, blue, green, orange]
+major_clades = [green]
 # cells are the cells used in partition function, i.e. we are finding probabilities of mutations seeding 'cells'
 for cells in major_clades:
 
@@ -56,7 +57,7 @@ for cells in major_clades:
         if dict(df_corrected[col]) == clade:
             muts += [col]
 
-    muts = muts[0:1]
+    # muts = muts[0:10]
 
     names_to_cells = list(df.index)
 
