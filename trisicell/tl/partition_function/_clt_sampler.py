@@ -427,7 +427,7 @@ def clt_sample_rec(
     
     log += "\tPair chosen: " + cells1 + " and " + cells2 + ": " + str("{:.10f}".format(prob.flat[ind] * 2)) + " " + nbg + "\n"
     
-    print(log)
+    # print(log)
 
 
 

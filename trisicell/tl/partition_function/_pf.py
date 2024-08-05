@@ -5,6 +5,48 @@ from tqdm import tqdm
 
 from trisicell.tl.partition_function._clt_sampler import draw_sample_clt
 
+def s_t_n_rec(ints_to_cell_id, subtrees, cells):
+    if len(cells) == 1:
+        return str(ints_to_cell_id[cells[0]])
+    
+    subtrees = sorted(subtrees, key=lambda x: np.linalg.norm(x), reverse=True)
+    if np.all(subtrees[0]):
+        subtrees = subtrees[1:]
+    split = subtrees[0]
+    ins = []
+    cells_ins = []
+    outs = []
+    cells_outs = []
+    for i in range(len(split)):
+        if split[i] == 1:
+            ins += [i]
+            cells_ins += [cells[i]]
+        else:
+            outs += [i]
+            cells_outs += [cells[i]]
+
+    subtrees_ins = []
+    subtrees_outs = []
+    for i in range(len(subtrees)):
+        if i != 0:
+            subtrees_ins += [subtrees[i][[ins]][0]]
+            subtrees_outs += [subtrees[i][[outs]][0]]
+    
+
+    str_ins = s_t_n_rec(ints_to_cell_id, subtrees_ins, cells_ins)
+    str_outs = s_t_n_rec(ints_to_cell_id, subtrees_outs, cells_outs)
+
+    return "(" + str_ins + "," + str_outs + ")"
+    
+
+    
+
+
+def subtrees_to_newick(subtrees, ints_to_cell_id):
+    cells = list(range(len(subtrees[0])))
+    return "(" + s_t_n_rec(ints_to_cell_id, subtrees, cells) + ")"
+    
+
 
 def cell_lineage_tree_prob(P, subtrees):
     r"""
@@ -68,22 +110,24 @@ def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, d
     edges_list = []
     subtrees_list = []
     tree_our_prob_list = []
+    nwk_list = []
 
     rng = np.random.default_rng(seed=0)
     for _ in tqdm(
         range(n_samples), ascii=True, ncols=100, desc="Sampling", disable=disable_tqdm
     ):
-        print("Sample " + str(_))
+        # print("Sample " + str(_))
         n_to_c = names_to_cells.copy()
 
         edges, subtrees, prior_prob = draw_sample_clt(P, False, c=1, eps=eps, delta=delta, divide=divide, coef=coef, names_to_cells=n_to_c, clade=cells, rng=rng)
         edges_list.append(edges)
         subtrees_list.append(subtrees)
         tree_our_prob_list.append(prior_prob)
+        nwk_list.append(subtrees_to_newick(subtrees, n_to_c))
     
     # clades_list = sorted([["".join([str(i) for i in st]) for st in subtrees] for subtrees in subtrees_list])
     # clades_list = [",".join(clade) for clade in clades_list]
-    return edges_list, subtrees_list, tree_our_prob_list
+    return edges_list, subtrees_list, tree_our_prob_list, nwk_list
 
 
 def get_samples_info(
@@ -122,7 +166,7 @@ def get_samples_info(
 
     given_samples = subtrees_list is not None
     if not given_samples:
-        edges_list, subtrees_list, tree_our_prob_list = get_samples(P, n_samples)
+        edges_list, subtrees_list, tree_our_prob_list, nwk_list = get_samples(P, n_samples)
 
     pf_cond_list = []
     tree_origin_prob_list = []
@@ -148,12 +192,12 @@ def get_samples_info(
             tree_origin_prob_list,
             edges_list,
             subtrees_list,
-            tree_our_prob_list,
+            tree_our_prob_list
         )
 
 
 def process_samples(
-    pf_cond_list, tree_origin_prob_list, tree_our_prob_list, n_batches=None
+    pf_cond_list, tree_origin_prob_list, tree_our_prob_list, n_batches=None, nwk_list=None
 ):
     """
     Combine the data corresponding to the sampled trees and output the partition.
@@ -192,7 +236,8 @@ def process_samples(
                 pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i]
             )
             denominator += tree_origin_prob_list[i] / tree_our_prob_list[i]
-            ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i])]
+            # ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i])]
+            ls_corrected += [(pf_cond_list[i] * tree_origin_prob_list[i] / tree_our_prob_list[i], tree_origin_prob_list[i] / tree_our_prob_list[i], pf_cond_list[i], str(nwk_list[i]))]
 
             # numerator += (
             #     pf_cond_list[i] * tree_origin_prob_list[i]
@@ -205,7 +250,8 @@ def process_samples(
         estimates.append(numerator / denominator)
 
         for i in range(len(ls_corrected)):
-            print("n = " + str(ls_corrected[i][0]) + " d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]))
+            # print("n = " + str(ls_corrected[i][0]) + " d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]))
+            print("d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]) + "\nnewick: " + ls_corrected[i][3])
 
 
     assert len(estimates) >= 1

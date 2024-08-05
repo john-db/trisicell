@@ -16,7 +16,7 @@ print(path)
 path_corrected = "/Users/john/Desktop/e_data/E-jun_13_2024-a_1e-8-b_0.075.tsv"
 df_corrected = pd.read_csv(path_corrected, sep="\t", index_col=[0]).sort_values(by=["cell_id_x_mut_id"])
 
-num_samples=10
+num_samples=2
 
 alpha=10**(-8)
 beta=0.075
@@ -27,7 +27,7 @@ beta=0.075
 # alpha=0.1
 # beta=0.25
 
-delta = 0.65
+delta = 0.8
 divide = True
 
 eps_list = [10]
