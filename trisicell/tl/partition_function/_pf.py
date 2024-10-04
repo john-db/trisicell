@@ -249,9 +249,9 @@ def process_samples(
         ls_corrected = sorted(ls_corrected, reverse = True, key = lambda x: x[1])
         estimates.append(numerator / denominator)
 
-        for i in range(len(ls_corrected)):
+        # for i in range(len(ls_corrected)):
             # print("n = " + str(ls_corrected[i][0]) + " d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]))
-            print("d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]) + "\nnewick: " + ls_corrected[i][3])
+            # print("d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]) + "\nnewick: " + ls_corrected[i][3])
 
 
     assert len(estimates) >= 1

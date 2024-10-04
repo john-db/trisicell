@@ -3,7 +3,8 @@ import pandas as pd
 
 # path = "/Users/john/Desktop/e_data/D.tsv"
 # path = "/Users/john/Desktop/e_data/D-jun_12_2024.tsv"
-path = "/Users/john/Desktop/e_data/D-jun_13_2024.tsv"
+# path = "/Users/john/Desktop/e_data/D-jun_13_2024.tsv"
+path = "/home/bridgersjd/trisicell/data/data_temp/D-jun_13_2024.tsv"
 
 
 # path = "/Users/john/Desktop/e_data/D_no_uninformative.tsv"
@@ -13,10 +14,11 @@ path = "/Users/john/Desktop/e_data/D-jun_13_2024.tsv"
 df = trisicell.io.read(path)
 print(path)
 
-path_corrected = "/Users/john/Desktop/e_data/E-jun_13_2024-a_1e-8-b_0.075.tsv"
+# path_corrected = "/Users/john/Desktop/e_data/E-jun_13_2024-a_1e-8-b_0.075.tsv"
+path_corrected = "/home/bridgersjd/trisicell/data/data_temp/E-jun_13_2024-a_1e-8-b_0.075.tsv"
 df_corrected = pd.read_csv(path_corrected, sep="\t", index_col=[0]).sort_values(by=["cell_id_x_mut_id"])
 
-num_samples=10
+num_samples=10000
 
 alpha=10**(-8)
 beta=0.075
@@ -33,7 +35,7 @@ divide = True
 eps_list = [10]
 coef_list = [10]
 
-output = ""
+output = "number of samples = " + str(num_samples) + "\n"
 
 red_minus_c13 = ["C20","C7","C8","C16","C11","C15","C18"]
 red = ["C20","C7","C8","C16","C11","C15","C18","C13"]
@@ -44,7 +46,7 @@ orange = ["C22", "C4", "C1"]
 two_and_five = ["C2", "C5"]
 
 
-cells = red
+cells = green
 
 all_cells = list(df_corrected.index)
 clade = {cell : 0 for cell in all_cells}
