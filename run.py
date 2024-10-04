@@ -3,8 +3,7 @@ import pandas as pd
 
 # path = "/Users/john/Desktop/e_data/D.tsv"
 # path = "/Users/john/Desktop/e_data/D-jun_12_2024.tsv"
-# path = "/Users/john/Desktop/e_data/D-jun_13_2024.tsv"
-path = "/home/bridgersjd/trisicell/data/data_temp/D-jun_13_2024.tsv"
+path = "/Users/john/Desktop/e_data/D-jun_13_2024.tsv"
 
 
 # path = "/Users/john/Desktop/e_data/D_no_uninformative.tsv"
@@ -14,11 +13,11 @@ path = "/home/bridgersjd/trisicell/data/data_temp/D-jun_13_2024.tsv"
 df = trisicell.io.read(path)
 print(path)
 
-# path_corrected = "/Users/john/Desktop/e_data/E-jun_13_2024-a_1e-8-b_0.075.tsv"
-path_corrected = "/home/bridgersjd/trisicell/data/data_temp/E-jun_13_2024-a_1e-8-b_0.075.tsv"
+path_corrected = "/Users/john/Desktop/e_data/E-jun_13_2024-a_1e-8-b_0.075.tsv"
+# path_corrected = "/home/bridgersjd/trisicell/data/data_temp/E-jun_13_2024-a_1e-8-b_0.075.tsv"
 df_corrected = pd.read_csv(path_corrected, sep="\t", index_col=[0]).sort_values(by=["cell_id_x_mut_id"])
 
-num_samples=10000
+num_samples=1
 
 alpha=10**(-8)
 beta=0.075
@@ -60,11 +59,11 @@ for col in df_corrected.columns:
 muts = muts[0:1]
 
 names_to_cells = list(df.index)
-
+seed = 1
 for eps in eps_list:
     for coef in coef_list:
         print("\ndelta = " + str(delta) + " divide=" + str(divide) + " epsilon=" + str(eps) + " gamma (coef)=" + str(coef))
-        pf = trisicell.tl.partition_function(df_input=df, alpha=alpha, beta=beta, n_samples=num_samples, n_batches=1, muts=muts, cells=cells, names_to_cells=names_to_cells,eps = eps, delta=delta, divide=divide, coef=coef)
+        pf = trisicell.tl.partition_function(df_input=df, alpha=alpha, beta=beta, n_samples=num_samples, n_batches=1, muts=muts, cells=cells, names_to_cells=names_to_cells,eps = eps, delta=delta, divide=divide, coef=coef, my_seed = seed)
         output += str(cells) + "\n" + str(pf) + "\n\n"
 
 print(output)

@@ -90,7 +90,7 @@ def pf_cond_on_one_tree(P, subtrees, cond_c, cond_m):
     return numerator, denominator
 
 
-def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, disable_tqdm=True):
+def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, my_seed = 0, disable_tqdm=True):
     r"""
     N_s *.
 
@@ -112,7 +112,7 @@ def get_samples(P, n_samples, names_to_cells, cells, eps, delta, divide, coef, d
     tree_our_prob_list = []
     nwk_list = []
 
-    rng = np.random.default_rng(seed=0)
+    rng = np.random.default_rng(seed=my_seed)
     for _ in tqdm(
         range(n_samples), ascii=True, ncols=100, desc="Sampling", disable=disable_tqdm
     ):
@@ -247,7 +247,7 @@ def process_samples(
         
         # ls_raw = sorted(ls_raw, reverse = True, key = lambda x: x[1])
         ls_corrected = sorted(ls_corrected, reverse = True, key = lambda x: x[1])
-        estimates.append(numerator / denominator)
+        estimates.append((numerator, denominator))
 
         # for i in range(len(ls_corrected)):
             # print("n = " + str(ls_corrected[i][0]) + " d = " + str(ls_corrected[i][1]) + " p = " + str(ls_corrected[i][2]))
